@@ -2,7 +2,6 @@ import pygame
 import sys
 import threading
 import speech_recognition as sr
-import heapq
 
 # Tamaño de la ventana y de los bloques del mapa
 WIDTH = 800
@@ -32,9 +31,7 @@ city_map = [
 # Nombres de las calles con sus coordenadas de inicio y fin
 street_names = {
     ((1, 1), (1, 7)): "Avenida Principal",
-    ((1, 9), (3, 9)): "Calle Central",
-    ((5, 9), (13, 9)): "derechos",
-    ((3, 5), (3, 8)): "calle chupa"
+    ((1, 9), (3, 9)): "Calle Central"
 }
 
 # Inicializar Pygame
@@ -56,11 +53,11 @@ clock = pygame.time.Clock()
 
 # Configurar el reconocimiento de voz
 recognizer = sr.Recognizer()
-recognizer.energy_threshold = 1000  # Ajusta el umbral de energía según tus necesidades
+recognizer.energy_threshold = 4000  # Ajusta el umbral de energía según tus necesidades
 
 # Función para capturar el comando de voz en un hilo separado
 def capture_voice_command():
-    global agent_x, agent_y 
+    global agent_x, agent_y
     while True:
         with sr.Microphone() as source:
             print("Di el comando:")
@@ -70,91 +67,37 @@ def capture_voice_command():
         try:
             command = recognizer.recognize_google(audio, language="es-ES").lower()
             print("Comando reconocido:", command)
-            move_to_street(command)
+            # Interpretar y procesar el comando de voz aquí
+
+            # Calcular la nueva posición del agente en función del movimiento
+            move_x = 0
+            move_y = 0
+
+            if "izquierda" in command:
+                move_x = -1
+            elif "derecha" in command:
+                move_x = 1
+            elif "arriba" in command:
+                move_y = -1
+            elif "abajo" in command:
+                move_y = 1
+
+            new_x = agent_x + move_x
+            new_y = agent_y + move_y
+
+            # Verificar si la nueva posición está dentro de los límites del mapa y es una calle
+            if (
+                0 <= new_x < len(city_map[0])
+                and 0 <= new_y < len(city_map)
+                and city_map[new_y][new_x] == 0
+            ):
+                agent_x = new_x
+                agent_y = new_y
 
         except sr.UnknownValueError:
             print("No se pudo reconocer el comando de voz")
         except sr.RequestError as e:
             print("Error al solicitar el servicio de reconocimiento de voz; {0}".format(e))
-
-# Función para calcular la ruta más corta utilizando el algoritmo A*
-def calculate_shortest_path(start, end):
-    open_list = []
-    closed_list = set()
-
-    # Crear un diccionario para almacenar los costos de los nodos
-    g_scores = {start: 0}
-
-    # Crear una cola de prioridad para almacenar los nodos a explorar
-    heapq.heappush(open_list, (0, start))
-
-    # Crear un diccionario para almacenar los padres de los nodos
-    parents = {}
-
-    while open_list:
-        current_node = heapq.heappop(open_list)[1]
-
-        if current_node == end:
-            # Construir el camino desde el nodo final hasta el nodo inicial
-            path = []
-            while current_node in parents:
-                path.insert(0, current_node)
-                current_node = parents[current_node]
-            return path
-
-        closed_list.add(current_node)
-
-        neighbors = get_neighbors(current_node)
-        for neighbor in neighbors:
-            if neighbor in closed_list:
-                continue
-
-            g_score = g_scores[current_node] + 1
-
-            if neighbor not in [node[1] for node in open_list]:
-                heapq.heappush(open_list, (g_score, neighbor))
-            elif g_score >= g_scores[neighbor]:
-                continue
-
-            parents[neighbor] = current_node
-            g_scores[neighbor] = g_score
-
-    return None
-
-# Función para obtener los vecinos válidos de un nodo en el mapa
-def get_neighbors(node):
-    x, y = node
-    neighbors = []
-    if x > 0 and city_map[y][x-1] == 0:
-        neighbors.append((x-1, y))
-    if x < len(city_map[0])-1 and city_map[y][x+1] == 0:
-        neighbors.append((x+1, y))
-    if y > 0 and city_map[y-1][x] == 0:
-        neighbors.append((x, y-1))
-    if y < len(city_map)-1 and city_map[y+1][x] == 0:
-        neighbors.append((x, y+1))
-    return neighbors
-
-# Función para mover el agente a lo largo de la ruta hacia la calle destino
-def move_to_street(street_name):
-    global agent_x, agent_y 
-    destination_coords = None
-    for street_coords, name in street_names.items():
-        if name.lower() == street_name:
-            destination_coords = street_coords
-            break
-
-    if destination_coords is not None:
-        start = (agent_x, agent_y)
-        end = destination_coords[0]
-        path = calculate_shortest_path(start, end)
-
-        if path is not None:
-            for node in path:
-                agent_x, agent_y = node
-                pygame.time.wait(500)  # Pausa de medio segundo entre movimientos
-                pygame.event.pump()
-                pygame.display.update()
 
 # Crear y ejecutar el hilo para la captura de voz
 voice_thread = threading.Thread(target=capture_voice_command)
