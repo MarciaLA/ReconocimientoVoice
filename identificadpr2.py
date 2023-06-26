@@ -4,17 +4,27 @@ import numpy as np
 
 # Frases almacenadas
 frases_almacenadas = [
-    "Agente 1, avanzar una cuadra por la calle de los Deberes Hechos",
-    "Nombre del agente ir a la calle del adjetivo esquina calle profe inolvidable",
-    "El perro ladra y el gato maulla en la noche",
-    "La tortuga camina despacio pero siempre llega a la meta",
-    "El sol brilla en el cielo azul",
-    "Me gusta comer pizza los fines de semana",
-    "El río fluye tranquilo entre los árboles",
-    "El viento sopla suavemente acariciando mi rostro",
-    "La música alegra el corazón y mueve los pies",
-    "Los amigos son como estrellas que iluminan nuestra vida"
-]
+        "Agente vaya a la Calle Profe Inolvidable",
+        "Agente vaya a la Calle del Adjetivo",
+        "Agente vaya a la Calle del SIELE",
+        "Agente vaya a la Calle del Sustantivo",
+        "Agente vaya a la Calle de los Errores",
+        "Agente vaya a la Calle del Ser y Estar",
+        "Agente vaya a la avenida Hablo Espaniol",
+        "Agente vaya a la Calle de los Deberes Hechos",
+        "Agente vaya a la Avenida del Indicativo",
+        "Agente vaya a la Avenida del Subjuntivo",
+        "Agente vaya a la Calle del Vocabulario",
+        "Agente vaya a la Calle del Instituto Cervantes",
+        "Agente vaya a la Avenida Profe de ELE",
+        "Agente vaya a la Calle de los verbos",
+        "Agente vaya a la Calle de la gramatica",
+        "Agente vaya a la Calle de las dudas",
+        "Agente vaya a la calle del me gusta",
+        "Agente vaya a la Calle de la ñ",
+        "Agente vaya a la calle de Por y Para",
+        "Agente vaya a la plaza del DELE"
+    ]
 
 # Convertir las frases almacenadas en vectores numéricos utilizando one-hot encoding
 vocabulario = list(set(" ".join(frases_almacenadas).split()))
