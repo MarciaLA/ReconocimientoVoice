@@ -8,7 +8,7 @@ import numpy as np
 from gensim.models import Word2Vec
 # Tamaño de la ventana y de los bloques del mapa
 WIDTH = 914
-HEIGHT = 600
+HEIGHT = 700
 BLOCK_SIZE = 20
 
 # Colores
@@ -54,6 +54,7 @@ city_map = [
 #suponiendo que (y,x) ordenadas asi las coordenadas
 street_names = {
     ((0, 4), (19, 4)): "agente juan camine a la calle profe inolvidable", #
+    ((19, 4), (0, 4)): "agente juan camine a la calle final profe inolvidable", #
     ((5, 0), (5, 16)): "agente juan camine a la calle del adjetivo",#
     ((5, 16), (5, 28)): "agente juan camine a la  calle del si le",#
     ((0, 23), (19, 23)): "agente juan camine a la calle del sustantivo",#
@@ -203,7 +204,7 @@ def move_to_street(street_name):
         if path is not None:
             for node in path:
                 agent_x, agent_y = node
-                pygame.time.wait(500)  # Pausa de medio segundo entre movimientos
+                pygame.time.wait(100)  # Pausa de medio segundo entre movimientos
                 pygame.event.pump()
                 pygame.display.update()
 
@@ -213,7 +214,8 @@ import tensorflow as tf
 def obtener_frase_similar(frase_entrada):
     # Frases almacenadas
     frases_almacenadas = [
-    "agente juan camine a la calle profe inolvidable", 
+    "agente juan camine a la calle profe inolvidable",
+    "agente juan camine a la calle final profe inolvidable", 
     "agente juan camine a la calle del adjetivo",
     "agente juan camine a la  calle del si le",
     "agente juan camine a la calle del sustantivo",
@@ -312,6 +314,7 @@ while True:
     for street_coords, street_name in street_names.items():
         (x_start, y_start), (x_end, y_end) = street_coords
         if x_start <= agent_x <= x_end and y_start <= agent_y <= y_end:
+            street_name = street_name.replace("agente juan camine a la", "")  # Eliminar la cadena no deseada
             font = pygame.font.Font(None, 24)
             text = font.render(street_name, True, BLACK)
             text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT - 20))
