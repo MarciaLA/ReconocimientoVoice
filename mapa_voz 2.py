@@ -7,9 +7,9 @@ import tensorflow as tf
 import numpy as np
 
 # Tamaño de la ventana y de los bloques del mapa
-WIDTH = 800
-HEIGHT = 700
-BLOCK_SIZE = 40
+WIDTH = 914
+HEIGHT = 600
+BLOCK_SIZE = 20
 
 # Colores
 WHITE = (255, 255, 255)
@@ -18,50 +18,76 @@ BLACK = (0, 0, 0)
 
 # Mapa de la ciudad
 city_map = [
-    [1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 1],
-    [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
-    [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0],
-    [1, 0, 1, 0, 1, 1, 0, 0, 0, 1, 1, 1, 0, 1, 0, 1],
-    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    [1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1]
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 0, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 0, 0, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 0, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    [1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1,1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
 
 # Nombres de las calles con sus coordenadas de inicio y fin
 #suponiendo que (y,x) ordenadas asi las coordenadas
 street_names = {
-    ((1, 0), (1, 5)): "Agente vaya a la Calle Profe Inolvidable", #
-    ((0, 1), (5, 1)): "Calle del Adjetivo",#
-    ((8, 1), (9, 1)): "Calle del SIELE",#
-    ((10, 0), (10, 2)): "Calle del Sustantivo",#
-    ((13, 0), (12, 6)): "Calle de los Errores",#
-    ((3, 3), (3, 5)): "Calle del Ser y Estar",#
-    ((6, 0), (6, 6)): "avenida Hablo Espaniol",#
-    ((3, 12), (3, 8)): "Calle de los Deberes Hechos",#
-    ((11, 7), (8, 7)): "Avenida del Indicativo",#
-    ((5, 7), (0, 7)): "Avenida dle Subjuntivo ",#
-    ((1, 9), (1, 12)): "Calle del Vocabulario", #
-    ((3, 9), (3, 12)): "Calle del Instituto Cervantes",#
-    ((6, 9), (6, 14)): "Avenida Profe de ELE",#
-    ((12, 12), (12, 5)): "Calle de los verbos",#
-    ((1, 9), (3, 9)): "Calle de la gramatica",
-    ((0, 13), (3, 13)): "Calle de las dudas",#
-    ((12, 10), (15, 10)): "calle del me gusta",#
-    ((5, 9), (13, 9)): "Calle de la ñ",# error
-    ((12, 15), (12, 12)): "calle de Por y Para",#
+    ((0, 4), (19, 4)): "Calle Profe Inolvidable", #
+    ((5, 0), (5, 16)): "Calle del Adjetivo",#
+    ((5, 16), (5, 28)): "Calle del SIELE",#
+    ((0, 23), (19, 23)): "Calle del Sustantivo",#
+    ((0, 28), (19, 28)): "Calle de los Errores",#
+    ((10, 9), (19,9)): "Calle de Ser y Estar",#
+    ((0,16), (17, 16)): "avenida Hablo Español",#
+    ((10,28), (10, 10)): "Calle de los Deberes Hechos",#
+    ((19, 18), (19, 29)): "avenida del indicativo",#
+    ((19, 0), (19, 14)): "Avenida del Subjuntivo ",#
+    ((19, 4), (44, 4)): "Calle del Vocabulario", #
+    ((19, 9), (44, 9)): "Calle del Instituto Cervantes",#
+    ((21, 16), (41, 16)): "Avenida ProfedeELE",#
+    ((30, 16), (30, 28)): "Calle de los verbos",#
+    ((35, 16), (35, 28)): "Calle de la gramática",
+    ((38, 0), (38, 9)): "Calle de las dudas",#
+    ((30, 23), (44, 23)): "calle del me gusta",#
+    ((41, 16), (43, 9)): "Calle de la n",# error
+    ((30, 28), (44, 28)): "calle de Por y Para",#
     #((5, 9), (13, 9)): "Monumento Nivel C2", #monumento
-    ((3, 5), (3, 8)): "plaza del DELE" #plaza (6,7)
+    #((3, 5), (3, 8)): "plaza del DELE" #plaza (6,7)
 }
-
 # Inicializar Pygame
 pygame.init()
+
+# Crear la ventana
+window = pygame.display.set_mode((WIDTH, HEIGHT))
+pygame.display.set_caption("Interfaz de Mapa")
+
+# Cargar la imagen del mapa
+map_image = pygame.image.load("image/mapa.jpg")
+
+# Cargar la imagen del agente
+agent_image = pygame.image.load("image/person.png")
+agent_rect = agent_image.get_rect()
 
 # Crear la ventana
 WINDOW_SIZE = (WIDTH, HEIGHT)
@@ -70,8 +96,7 @@ pygame.display.set_caption("Interfaz de Mapa")
 
 # Coordenadas iniciales del agente
 agent_x = 0
-agent_y = 1
-
+agent_y = 4
 # Velocidad de desplazamiento del agente
 move_speed = BLOCK_SIZE
 
@@ -183,26 +208,25 @@ def move_to_street(street_name):
 def obtener_frase_similar(frase_entrada):
     # Comandos almacenadas
     frases_almacenadas = [
-    "Agente vaya a la Calle Profe Inolvidable", #
-    "Agente vaya a la Calle del Adjetivo",#
-    "Agente vaya a la Calle del SIELE",#
-    "Agente vaya a la Calle del Sustantivo",#
-    "Agente vaya a la Calle de los Errores",#
-    "Agente vaya a la Calle del Ser y Estar",#
-    "Agente vaya a la avenida Hablo Espaniol",#
-    "Agente vaya a la Calle de los Deberes Hechos",#
-    "Agente vaya a la Avenida del Indicativo",#
-    "Agente vaya a la Avenida dle Subjuntivo ",#
-    "Agente vaya a la Calle del Vocabulario", #
-    "Agente vaya a la Calle del Instituto Cervantes",#
-    "Agente vaya a la Avenida Profe de ELE",#
-    "Agente vaya a la Calle de los verbos",#
-    "Agente vaya a la Calle de la gramatica",
-    "Agente vaya a la Calle de las dudas",#
-    "Agente vaya a la calle del me gusta",#
-    "Agente vaya a la Calle de la ñ",# error
-    "Agente vaya a la calle de Por y Para",#
-    "Agente vaya a la plaza del DELE"
+    "Calle Profe Inolvidable",
+    "Calle del Adjetivo",
+    "Calle del SIELE",
+    "Calle del Sustantivo",
+    "Calle de los Errores",
+    "Calle de Ser y Estar",
+    "avenida Hablo Español",
+    "Calle de los Deberes Hechos",
+    "avenida del indicativo",
+    "Avenida del Subjuntivo ",
+    "Calle del Vocabulario", 
+    "Calle del Instituto Cervantes",
+    "Avenida ProfedeELE",
+    "Calle de los verbos",
+    "Calle de la gramática",
+    "Calle de las dudas",
+    "calle del me gusta",
+    "Calle de la n",
+    "calle de Por y Para",
     ]
 
     # Convertir las frases almacenadas en vectores numéricos utilizando one-hot encoding
