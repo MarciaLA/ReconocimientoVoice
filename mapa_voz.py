@@ -204,6 +204,72 @@ def move_to_street(street_name):
                 pygame.event.pump()
                 pygame.display.update()
 
+def obtener_frase_similar(frase_entrada):
+    # Comandos almacenadas
+    frases_almacenadas = [
+    "Calle Profe Inolvidable",
+    "Calle del Adjetivo",
+    "Calle del SIELE",
+    "Calle del Sustantivo",
+    "Calle de los Errores",
+    "Calle de Ser y Estar",
+    "avenida Hablo Español",
+    "Calle de los Deberes Hechos",
+    "avenida del indicativo",
+    "Avenida del Subjuntivo ",
+    "Calle del Vocabulario", 
+    "Calle del Instituto Cervantes",
+    "Avenida ProfedeELE",
+    "Calle de los verbos",
+    "Calle de la gramática",
+    "Calle de las dudas",
+    "calle del me gusta",
+    "Calle de la n",
+    "calle de Por y Para",
+    ]
+
+    # Convertir las frases almacenadas en vectores numéricos utilizando one-hot encoding
+    vocabulario = list(set(" ".join(frases_almacenadas).split()))
+    vocabulario.sort()
+    vocabulario_indices = dict((c, i) for i, c in enumerate(vocabulario))
+    indices_vocabulario = dict((i, c) for i, c in enumerate(vocabulario))
+
+    frases_almacenadas_encoded = []
+    for frase in frases_almacenadas:
+        frase_encoded = np.zeros(len(vocabulario))
+        for palabra in frase.split():
+            frase_encoded[vocabulario_indices[palabra]] = 1
+        frases_almacenadas_encoded.append(frase_encoded)
+
+    frases_almacenadas_encoded = np.array(frases_almacenadas_encoded)
+
+    # Crear y entrenar la red neuronal
+    input_shape = (len(vocabulario),)
+    model = tf.keras.models.Sequential([
+        tf.keras.layers.Dense(64, input_shape=input_shape, activation='relu'),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(128, activation='relu'),
+        tf.keras.layers.Dense(len(frases_almacenadas), activation='softmax')
+    ])
+
+    model.compile(optimizer='adam', loss='categorical_crossentropy')
+
+    # Entrenamiento de la red neuronal
+    model.fit(frases_almacenadas_encoded, np.eye(len(frases_almacenadas)), epochs=100)
+
+    # Convertir la frase de entrada en un vector numérico utilizando one-hot encoding
+    frase_entrada_encoded = np.zeros(len(vocabulario))
+    for palabra in frase_entrada.split():
+        if palabra in vocabulario_indices:
+            frase_entrada_encoded[vocabulario_indices[palabra]] = 1
+
+    # Predecir la frase más similar utilizando la red neuronal
+    predicciones = model.predict(np.array([frase_entrada_encoded]))
+    indice_frase_similar = np.argmax(predicciones)
+    frase_similar = frases_almacenadas[indice_frase_similar]
+
+    return frase_similar
+
 # Crear y ejecutar el hilo para la captura de voz
 voice_thread = threading.Thread(target=capture_voice_command)
 voice_thread.daemon = True
