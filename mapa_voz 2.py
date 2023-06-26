@@ -41,19 +41,19 @@ street_names = {
     ((2, 1), (4, 1)): "Calle del Adjetivo",#
     ((8, 1), (9, 1)): "Calle del SIELE",#
     ((10, 0), (10, 2)): "Calle del Sustantivo",#
-    ((12, 0), (12, 6)): "Calle de los Errores",#
+    ((13, 0), (12, 6)): "Calle de los Errores",#
     ((3, 3), (3, 5)): "Calle del Ser y Estar",#
     ((6, 0), (6, 6)): "avenida Hablo Espaniol",#
-    ((11, 3), (8, 3)): "Calle de los Deberes Hechos",#
+    ((3, 12), (3, 8)): "Calle de los Deberes Hechos",#
     ((11, 7), (8, 7)): "Avenida del Indicativo",#
-    ((5, 7), (0, 7)): "Avenida del Subjuntivo ",#
+    ((5, 7), (0, 7)): "Avenida dle Subjuntivo ",#
     ((1, 9), (1, 12)): "Calle del Vocabulario", #
     ((3, 9), (3, 12)): "Calle del Instituto Cervantes",#
     ((6, 9), (6, 14)): "Avenida Profe de ELE",#
-    ((11, 12), (8, 12)): "Calle de los verbos",#
+    ((12, 12), (12, 5)): "Calle de los verbos",#
     ((1, 9), (3, 9)): "Calle de la gramatica",
     ((0, 13), (3, 13)): "Calle de las dudas",#
-    ((10, 13), (10, 15)): "calle del me gusta",#
+    ((12, 10), (15, 10)): "calle del me gusta",#
     ((5, 9), (13, 9)): "Calle de la ñ",# error
     ((12, 15), (12, 12)): "calle de Por y Para",#
     #((5, 9), (13, 9)): "Monumento Nivel C2", #monumento
@@ -69,7 +69,7 @@ window = pygame.display.set_mode(WINDOW_SIZE)
 pygame.display.set_caption("Interfaz de Mapa")
 
 # Coordenadas iniciales del agente
-agent_x = 1
+agent_x = 0
 agent_y = 1
 
 # Velocidad de desplazamiento del agente
@@ -92,7 +92,7 @@ def capture_voice_command():
 
         try:
             frase_entrada = recognizer.recognize_google(audio, language="es-ES").lower()
-            command = str(obtener_frase_similar(frase_entrada))
+            command = obtener_frase_similar(frase_entrada)
             print("Comando reconocido:", command)
             move_to_street(command)
 
@@ -284,3 +284,4 @@ while True:
 
     # Controlar la velocidad de fotogramas
     clock.tick(60)  # Ajusta la velocidad de fotogramas según tus necesidades
+
