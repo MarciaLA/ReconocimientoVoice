@@ -3,7 +3,9 @@ import sys
 import threading
 import speech_recognition as sr
 import heapq
-
+import tensorflow as tf
+import numpy as np
+from gensim.models import Word2Vec
 # Tamaño de la ventana y de los bloques del mapa
 WIDTH = 914
 HEIGHT = 600
@@ -51,25 +53,25 @@ city_map = [
 # Nombres de las calles con sus coordenadas de inicio y fin
 #suponiendo que (y,x) ordenadas asi las coordenadas
 street_names = {
-    ((0, 4), (19, 4)): "Calle Profe Inolvidable", #
-    ((5, 0), (5, 16)): "Calle del Adjetivo",#
-    ((5, 16), (5, 28)): "Calle del SIELE",#
-    ((0, 23), (19, 23)): "Calle del Sustantivo",#
-    ((0, 28), (19, 28)): "Calle de los Errores",#
-    ((10, 9), (19,9)): "Calle de Ser y Estar",#
-    ((0,16), (17, 16)): "avenida Hablo Español",#
-    ((10,28), (10, 10)): "Calle de los Deberes Hechos",#
-    ((19, 18), (19, 29)): "avenida del indicativo",#
-    ((19, 0), (19, 14)): "Avenida del Subjuntivo ",#
-    ((19, 4), (44, 4)): "Calle del Vocabulario", #
-    ((19, 9), (44, 9)): "Calle del Instituto Cervantes",#
-    ((21, 16), (41, 16)): "Avenida ProfedeELE",#
-    ((30, 16), (30, 28)): "Calle de los verbos",#
-    ((35, 16), (35, 28)): "Calle de la gramática",
-    ((38, 0), (38, 9)): "Calle de las dudas",#
-    ((30, 23), (44, 23)): "calle del me gusta",#
-    ((41, 16), (43, 9)): "Calle de la n",# error
-    ((30, 28), (44, 28)): "calle de Por y Para",#
+    ((0, 4), (19, 4)): "agente juan camine a la calle profe inolvidable", #
+    ((5, 0), (5, 16)): "agente juan camine a la calle del adjetivo",#
+    ((5, 16), (5, 28)): "agente juan camine a la  calle del si le",#
+    ((0, 23), (19, 23)): "agente juan camine a la calle del sustantivo",#
+    ((0, 28), (19, 28)): "agente juan camine a la calle de los errores",#
+    ((10, 9), (19,9)): "agente juan camine a la calle de ser y estar",#
+    ((0,16), (17, 16)): "agente juan camine a la avenida hablo español",#
+    ((10,28), (10, 10)): "agente juan camine a la calle de los deberes hechos",#
+    ((19, 18), (19, 29)): "agente juan camine a la avenida del indicativo",#
+    ((19, 0), (19, 14)): "agente juan camine a la avenida del subjuntivo ",#
+    ((21, 4), (44, 4)): "agente juan camine a la calle del vocabulario", #
+    ((19, 9), (44, 9)): "agente juan camine a la calle del instituto cervantes",#
+    ((21, 16), (41, 16)): "agente juan camine a la avenida profedeele",#
+    ((30, 16), (30, 28)): "agente juan camine a la calle de los verbos",#
+    ((35, 16), (35, 28)): "agente juan camine a la calle de la gramática",
+    ((38, 0), (38, 9)): "agente juan camine a la calle de las dudas",#
+    ((30, 23), (44, 23)): "agente juan camine a la calle del me gusta",#
+    ((41, 16), (43, 9)): "agente juan camine a la calle de la ñ",# error
+    ((30, 28), (44, 28)): "agente juan camine a la calle de por y para",#
     #((5, 9), (13, 9)): "Monumento Nivel C2", #monumento
     #((3, 5), (3, 8)): "plaza del DELE" #plaza (6,7)
 }
@@ -118,7 +120,8 @@ def capture_voice_command():
         try:
             command = recognizer.recognize_google(audio, language="es-ES").lower()
             print("Comando reconocido:", command)
-            move_to_street(command)
+            frase=obtener_frase_similar(command)
+            move_to_street(frase)
 
         except sr.UnknownValueError:
             print("No se pudo reconocer el comando de voz")
@@ -204,41 +207,112 @@ def move_to_street(street_name):
                 pygame.event.pump()
                 pygame.display.update()
 
+# def obtener_frase_similar(frase_entrada):
+#     # Comandos almacenadas
+#     frases_almacenadas = [
+#     "Calle Profe Inolvidable",
+#     "Calle del Adjetivo",
+#     "Calle del SIELE",
+#     "Calle del Sustantivo",
+#     "Calle de los Errores",
+#     "Calle de Ser y Estar",
+#     "avenida Hablo Español",
+#     "Calle de los Deberes Hechos",
+#     "avenida del indicativo",
+#     "Avenida del Subjuntivo ",
+#     "Calle del Vocabulario", 
+#     "Calle del Instituto Cervantes",
+#     "Avenida ProfedeELE",
+#     "Calle de los verbos",
+#     "Calle de la gramática",
+#     "Calle de las dudas",
+#     "calle del me gusta",
+#     "Calle de la n",
+#     "calle de Por y Para",
+#     ]
+
+#     # Convertir las frases almacenadas en vectores numéricos utilizando one-hot encoding
+#     vocabulario = list(set(" ".join(frases_almacenadas).split()))
+#     vocabulario.sort()
+#     vocabulario_indices = dict((c, i) for i, c in enumerate(vocabulario))
+#     indices_vocabulario = dict((i, c) for i, c in enumerate(vocabulario))
+
+#     frases_almacenadas_encoded = []
+#     for frase in frases_almacenadas:
+#         frase_encoded = np.zeros(len(vocabulario))
+#         for palabra in frase.split():
+#             frase_encoded[vocabulario_indices[palabra]] = 1
+#         frases_almacenadas_encoded.append(frase_encoded)
+
+#     frases_almacenadas_encoded = np.array(frases_almacenadas_encoded)
+
+#     # Crear y entrenar la red neuronal
+#     input_shape = (len(vocabulario),)
+#     model = tf.keras.models.Sequential([
+#         tf.keras.layers.Dense(64, input_shape=input_shape, activation='relu'),
+#         tf.keras.layers.Dense(128, activation='relu'),
+#         tf.keras.layers.Dense(128, activation='relu'),
+#         tf.keras.layers.Dense(len(frases_almacenadas), activation='softmax')
+#     ])
+
+#     model.compile(optimizer='adam', loss='categorical_crossentropy')
+
+#     # Entrenamiento de la red neuronal
+#     model.fit(frases_almacenadas_encoded, np.eye(len(frases_almacenadas)), epochs=100)
+
+#     # Convertir la frase de entrada en un vector numérico utilizando one-hot encoding
+#     frase_entrada_encoded = np.zeros(len(vocabulario))
+#     for palabra in frase_entrada.split():
+#         if palabra in vocabulario_indices:
+#             frase_entrada_encoded[vocabulario_indices[palabra]] = 1
+
+#     # Predecir la frase más similar utilizando la red neuronal
+#     predicciones = model.predict(np.array([frase_entrada_encoded]))
+#     indice_frase_similar = np.argmax(predicciones)
+#     frase_similar = frases_almacenadas[indice_frase_similar]
+
+#     return frase_similar
+import numpy as np
+import tensorflow as tf
+
 def obtener_frase_similar(frase_entrada):
-    # Comandos almacenadas
+    # Frases almacenadas
     frases_almacenadas = [
-    "Calle Profe Inolvidable",
-    "Calle del Adjetivo",
-    "Calle del SIELE",
-    "Calle del Sustantivo",
-    "Calle de los Errores",
-    "Calle de Ser y Estar",
-    "avenida Hablo Español",
-    "Calle de los Deberes Hechos",
-    "avenida del indicativo",
-    "Avenida del Subjuntivo ",
-    "Calle del Vocabulario", 
-    "Calle del Instituto Cervantes",
-    "Avenida ProfedeELE",
-    "Calle de los verbos",
-    "Calle de la gramática",
-    "Calle de las dudas",
-    "calle del me gusta",
-    "Calle de la n",
-    "calle de Por y Para",
+    "agente juan camine a la calle profe inolvidable", 
+    "agente juan camine a la calle del adjetivo",
+    "agente juan camine a la  calle del si le",
+    "agente juan camine a la calle del sustantivo",
+    "agente juan camine a la calle de los errores",
+    "agente juan camine a la calle de ser y estar",
+    "agente juan camine a la avenida hablo español",
+    "agente juan camine a la calle de los deberes hechos",
+    "agente juan camine a la avenida del indicativo",
+    "agente juan camine a la avenida del subjuntivo ",
+    "agente juan camine a la calle del vocabulario", 
+    "agente juan camine a la calle del instituto cervantes",
+    "agente juan camine a la avenida profedeele",
+    "agente juan camine a la calle de los verbos",
+    "agente juan camine a la calle de la gramática",
+    "agente juan camine a la calle de las dudas",
+    "agente juan camine a la calle del me gusta",
+    "agente juan camine a la calle de la ñ",
+    "agente juan camine a la calle de por y para",
     ]
 
-    # Convertir las frases almacenadas en vectores numéricos utilizando one-hot encoding
-    vocabulario = list(set(" ".join(frases_almacenadas).split()))
-    vocabulario.sort()
-    vocabulario_indices = dict((c, i) for i, c in enumerate(vocabulario))
-    indices_vocabulario = dict((i, c) for i, c in enumerate(vocabulario))
+    # Preprocesamiento de texto
+    vocabulario = set(" ".join(frases_almacenadas).lower().split())
 
+    # Construir el índice del vocabulario
+    vocabulario_indices = {palabra: i for i, palabra in enumerate(vocabulario)}
+    indices_vocabulario = {i: palabra for i, palabra in enumerate(vocabulario)}
+
+    # Convertir las frases almacenadas en vectores numéricos
     frases_almacenadas_encoded = []
     for frase in frases_almacenadas:
-        frase_encoded = np.zeros(len(vocabulario))
-        for palabra in frase.split():
-            frase_encoded[vocabulario_indices[palabra]] = 1
+        frase_encoded = [0] * len(vocabulario)
+        for palabra in frase.lower().split():
+            if palabra in vocabulario_indices:
+                frase_encoded[vocabulario_indices[palabra]] = 1
         frases_almacenadas_encoded.append(frase_encoded)
 
     frases_almacenadas_encoded = np.array(frases_almacenadas_encoded)
@@ -254,12 +328,15 @@ def obtener_frase_similar(frase_entrada):
 
     model.compile(optimizer='adam', loss='categorical_crossentropy')
 
-    # Entrenamiento de la red neuronal
-    model.fit(frases_almacenadas_encoded, np.eye(len(frases_almacenadas)), epochs=100)
+    # Convertir las frases almacenadas en etiquetas one-hot
+    etiquetas_encoded = np.eye(len(frases_almacenadas))
 
-    # Convertir la frase de entrada en un vector numérico utilizando one-hot encoding
-    frase_entrada_encoded = np.zeros(len(vocabulario))
-    for palabra in frase_entrada.split():
+    # Entrenar la red neuronal
+    model.fit(frases_almacenadas_encoded, etiquetas_encoded, epochs=100, verbose=0)
+
+    # Convertir la frase de entrada en un vector numérico
+    frase_entrada_encoded = [0] * len(vocabulario)
+    for palabra in frase_entrada.lower().split():
         if palabra in vocabulario_indices:
             frase_entrada_encoded[vocabulario_indices[palabra]] = 1
 
@@ -267,7 +344,7 @@ def obtener_frase_similar(frase_entrada):
     predicciones = model.predict(np.array([frase_entrada_encoded]))
     indice_frase_similar = np.argmax(predicciones)
     frase_similar = frases_almacenadas[indice_frase_similar]
-
+    print("Frase similar: ",frase_similar)
     return frase_similar
 
 # Crear y ejecutar el hilo para la captura de voz
